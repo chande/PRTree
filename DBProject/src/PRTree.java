@@ -34,7 +34,7 @@ public class PRTree{
 
             //lines 7 - 8
             if (currentPR.objectList.size() <= M){
-                printPR(currentPR, false);
+                //printPR(currentPR, false);
             }
             else{
                 //line 10
@@ -52,7 +52,7 @@ public class PRTree{
                         }
                     }
                 }
-                printPR(currentPR, true);
+                //printPR(currentPR, true);
             }
         }
         //printTree();
@@ -88,6 +88,7 @@ public class PRTree{
                     }
                 }
             }
+            //interior node
             else{
                 for (char c : currentNode.children.keySet()){
                     //lines 11 - 13
@@ -251,8 +252,8 @@ public class PRTree{
         double xSum = 0;
         double ySum = 0;
         for (Record r : region){
-            xSum += r.point.getLatitude();//r.point.getLatitude();
-            ySum += r.point.getLongitude();//r.point.getLongitude();
+            xSum += r.point.getLatitude();
+            ySum += r.point.getLongitude();
         }
 
         xSum = xSum / region.size();
@@ -299,13 +300,7 @@ public class PRTree{
                     }
                     repeatedPrefix = true;
                     if (pr.offset == recordName.length()){
-                        System.out.println("LOL");
-                        //if (pr.offset+1 == recordName.length()){
                         use = recordName.charAt(recordName.length()-1);
-                        //}
-                        //else{
-                        //  use = recordName.charAt(recordName.length()-1);
-                        // }
                         record.setString(recordName);
                         if (partitioned.get(use) == null){
                             recordList = new ArrayList<Record>();
@@ -320,7 +315,6 @@ public class PRTree{
                         break;
                     }
                     else{
-                        System.out.println("OK");
                         record.setString(recordName.substring(0, pr.offset+1));
 
                         if (partitioned.get(recordName.charAt(pr.offset)) == null){
