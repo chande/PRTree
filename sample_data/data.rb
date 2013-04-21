@@ -1,5 +1,7 @@
 require 'factual'
-factual = Factual.new("v7S19BHujTqZldU1trv2yx45MgzANmEh1vPx3T6b", "DQk6GL4ga47YqW1WrqQnE4c54tGKNcQVbAQ7ISWQ")
+
+#your factual keys go here
+factual = Factual.new(KEY1, KEY2)
 
 def printout(r)
   for x in r
