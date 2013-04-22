@@ -3,6 +3,7 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,6 +19,7 @@ public class TrieLAIS {
     private Map<Character, TrieLAIS> children;
     private RecordLAIS_TRIE word = new RecordLAIS_TRIE();
     private Set<TrieLAIS> descendantsWithWord;
+    private ArrayList<RecordLAIS_TRIE> recList = new ArrayList<RecordLAIS_TRIE>();
     private boolean isBuilt = false;
 
 
@@ -31,14 +33,21 @@ public class TrieLAIS {
             throw new IllegalAccessException("Can not add words after calling the build method");
         }
         TrieLAIS t = this;
-        for (Character c : word.name.toCharArray()) { //for every character in query do the following....
+        for (Character c : word.parseString.toCharArray()) { //for every character in query do the following....
             //add character to the current instance and get the child instance right after adding the current char
             if (!t.children.containsKey(c)) {
                 t.children.put(c, new TrieLAIS());
             }
             t = t.children.get(c);
         }
-        t.word = word.clone();
+        try{
+            if (t.word.parseString.equals(word.parseString)){
+                t.recList.add(word);
+            }
+        }
+        catch (Exception e){
+            t.word = word;
+        }
     }
 
     public Set<TrieLAIS> search(final String word) {
@@ -61,7 +70,7 @@ public class TrieLAIS {
         for (final TrieLAIS childTrie : children.values()) {
             descendantsWithWord.addAll(childTrie.build());
         }
-        if (this.word.name != null && this.word.name.length() > 0) {
+        if (this.word.parseString != null && this.word.parseString.length() > 0) {
             this.descendantsWithWord.add(this);
         }
         if (this.children.keySet().isEmpty()) {// we are at the leaf node
@@ -85,20 +94,30 @@ public class TrieLAIS {
         //Read File Line By Line
         while ((strLine = br.readLine()) != null){
             String line[] = strLine.split(",");
-            RecordLAIS_TRIE r  = new RecordLAIS_TRIE();
-            r.name = line[2];
-            r.name = r.name.substring(1, r.name.length()-1);
-            r.point.setLatitudeLongitude(Double.parseDouble(line[0]), Double.parseDouble(line[1]));
-            t.add(r);
+            String words[] = line[2].split(" ");
+            for (String s : words){
+                s = s.replace("\"","");
+                RecordLAIS_TRIE r  = new RecordLAIS_TRIE();
+                r.parseString = s.toLowerCase();
+                r.recName = line[2].replace("\"","").toLowerCase();
+                System.out.println("PARSESTRING: " + r.parseString + " RECORD NAME: " + r.recName);
+                r.point.setLatitudeLongitude(Double.parseDouble(line[0]), Double.parseDouble(line[1]));
+                t.add(r);
+            }
         }
         //Close the input stream
         in.close();
 
         t.build();
-        Set<TrieLAIS> l = t.search("P");
+        Set<TrieLAIS> l = t.search("s");
         System.out.println("Results");
         for (TrieLAIS tr : l) {
-            System.out.println(tr.word.name);
+            System.out.println(tr.word.recName);
+            if (tr.recList.size() > 0){
+                for (RecordLAIS_TRIE r : tr.recList){
+                    System.out.println(r.recName);
+                }
+            }
         }
     }
 }

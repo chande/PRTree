@@ -1,6 +1,7 @@
 
 public class RecordLAIS_TRIE{
-    public String name = null;
+    public String parseString = null;
+    public String recName = null;
     public CoordinatesLAIS_TRIE point = new CoordinatesLAIS_TRIE(0, 0);
     public int offset = 0;
     public String currentPrefix = new String();
@@ -11,7 +12,7 @@ public class RecordLAIS_TRIE{
     }
 
     public RecordLAIS_TRIE(String recName, double lat, double lon){
-        name = recName;
+        parseString = recName;
         point.setLatitudeLongitude(lat, lon);
     }
 
@@ -39,7 +40,7 @@ public class RecordLAIS_TRIE{
     @Override
     public RecordLAIS_TRIE clone(){
         RecordLAIS_TRIE r = new RecordLAIS_TRIE();
-        r.name = name;
+        r.parseString = parseString;
         r.point.setLatitudeLongitude(Double.valueOf(point.latitude), Double.valueOf(point.longitude));
         r.offset = offset;
         r.currentPrefix = new String(currentPrefix);
