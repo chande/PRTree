@@ -66,7 +66,7 @@ public class PRTree{
         prQ.add(node);
 
         while ((resultList.size() < k) && (!prQ.isEmpty())){
-            System.out.println("SIZE OF RECQ: " + recQ.size() + " SIZE OF PRQ: " + prQ.size());
+            //System.out.println("SIZE OF RECQ: " + recQ.size() + " SIZE OF PRQ: " + prQ.size());
             //lines 5 - 6
             if (!recQ.isEmpty()){
                 if ((!prQ.isEmpty()) && (recQ.peek().getDist() < prQ.peek().getDist())){
@@ -126,6 +126,7 @@ public class PRTree{
                 for (String s : r.name){
                     if(s.contains(query)){
                         System.out.println(r.name);
+                        continue;
                     }
                 }
             }
@@ -270,8 +271,8 @@ public class PRTree{
 
         ArrayList<Record> recordList = new ArrayList<Record>();
         for (Record record : pr.objectList){
-            System.out.println(record.name);
-            System.out.println("PR STRING: " + pr.stringPrefix);
+            //System.out.println(record.name);
+            //System.out.println("PR STRING: " + pr.stringPrefix);
             repeatedPrefix = false;
             for (String recordName : record.name){
                 //If root, first character of first string is current prefix

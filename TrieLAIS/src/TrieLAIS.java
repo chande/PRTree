@@ -5,14 +5,17 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Set;
 
 /**
  *
- * @author Sapan
+ * @author Sapan (modified by chande)
+ * 
  */
 public class TrieLAIS {
 
@@ -83,7 +86,7 @@ public class TrieLAIS {
         TrieLAIS t = new TrieLAIS();
 
         // Open the file
-        FileInputStream fstream = new FileInputStream("src/Data.txt");
+        FileInputStream fstream = new FileInputStream("src/sanitized.txt");
 
         // Get the object of DataInputStream
         DataInputStream in = new DataInputStream(fstream);
@@ -100,7 +103,7 @@ public class TrieLAIS {
                 RecordLAIS_TRIE r  = new RecordLAIS_TRIE();
                 r.parseString = s.toLowerCase();
                 r.recName = line[2].replace("\"","").toLowerCase();
-                System.out.println("PARSESTRING: " + r.parseString + " RECORD NAME: " + r.recName);
+                //System.out.println("PARSESTRING: " + r.parseString + " RECORD NAME: " + r.recName);
                 r.point.setLatitudeLongitude(Double.parseDouble(line[0]), Double.parseDouble(line[1]));
                 t.add(r);
             }
@@ -109,15 +112,33 @@ public class TrieLAIS {
         in.close();
 
         t.build();
-        Set<TrieLAIS> l = t.search("s");
+
+        CoordinatesLAIS_TRIE point = new CoordinatesLAIS_TRIE(-74.378,40.799);
+        Comparator<RecordLAIS_TRIE> recordComparator = new RecordComparatorLAIS_TRIE();
+        PriorityQueue<RecordLAIS_TRIE> recQ = new PriorityQueue<RecordLAIS_TRIE>(10, recordComparator);
+
+        ArrayList<RecordLAIS_TRIE> recordList = new ArrayList<RecordLAIS_TRIE>();
+        int k = 4;
+
+        Set<TrieLAIS> l = t.search("hurt");
         System.out.println("Results");
         for (TrieLAIS tr : l) {
-            System.out.println(tr.word.recName);
+            //            System.out.println(tr.word.recName);
+            tr.word.updateDistance(point);
+            recordList.add(tr.word);
             if (tr.recList.size() > 0){
                 for (RecordLAIS_TRIE r : tr.recList){
-                    System.out.println(r.recName);
+                    r.updateDistance(point);
+                    recordList.add(r);
+                    //                            System.out.println(r.recName);
                 }
             }
+        }
+        for (RecordLAIS_TRIE r : recordList){
+            recQ.add(r);
+        }
+        for(int i = 0; i < k; i++){
+            System.out.println(recQ.remove().recName);
         }
     }
 }

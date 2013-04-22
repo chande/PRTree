@@ -14,7 +14,7 @@ public class Main {
         int M;
 
         if (args.length != 2){
-            inputFile = "src/Data.txt";
+            inputFile = "src/sanitized.txt";
             M = 3;
         }
         else{
@@ -40,8 +40,8 @@ public class Main {
     public static void main(String[] args) throws IOException{
         int M = getRecords(args);
         PRTree prt = new PRTree(records, M);
-        //prt.textOnlySearch("pa", prt.root);
+        //prt.textOnlySearch("hurt", prt.root);
         Coordinates point = new Coordinates(-74.378,40.799);
-        //prt.singlePrefixQuery("s", point, 2, prt.root);
+        prt.singlePrefixQuery("hurt", point, 4, prt.root);
     }
 }
