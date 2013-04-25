@@ -124,7 +124,7 @@ public class TrieLAIS {
         TrieLAIS t = new TrieLAIS();
 
         // Open the file
-        FileInputStream fstream = new FileInputStream("src/sanitized.txt");
+        FileInputStream fstream = new FileInputStream("data/sanitized.txt");
 
         // Get the object of DataInputStream
         DataInputStream in = new DataInputStream(fstream);
