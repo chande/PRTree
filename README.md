@@ -29,7 +29,7 @@ There is a GUI interface in GUI.java that returns results as they are typed.
 
 <strong>data/</strong>
 
-This directory is the same is the PRTree case.
+This directory is the same as the PRTree case.
 
 ruby_files/
 ===========
