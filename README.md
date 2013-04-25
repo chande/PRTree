@@ -17,3 +17,21 @@ This directory contains the PR-Tree implementation, in PRTRee.java. The construc
 <strong>data/</strong>
 
 This directory contains the query benchmarking input (numbered directories) and experimental results (data.txt), as well as the input database (sanitized.txt). The naming convention for the benchmarking files is: number_of_queries.prefix_length.number_of_results
+
+TrieLAIS/
+=========
+
+<strong>src/</strong>
+
+This directory contains the modified Trie implementation, which solves the Location-aware Instant Search problem. It is also currently in a state that runs the benchmarks, similar to main() for the PRTree. 
+
+There is a GUI interface in GUI.java that returns results as they are typed.
+
+<strong>data/</strong>
+
+This directory is the same is the PRTree case.
+
+ruby_files/
+===========
+
+The ruby files that were used to gather and modify input data are contained here. The data.rb file is meant to work with a Factual API key. The generateData.rb file is used to create the sample input queries. The removeDuplicates.rb is used to remove duplicates from the database. The results are then run through sanitize.rb, which performs the sanitizing steps listed in the report.
