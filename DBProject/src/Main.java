@@ -51,7 +51,7 @@ public class Main {
 
         HashMap<String, ArrayList<Double>> values = new HashMap<String, ArrayList<Double>>();
         for (int i = 0; i <= 4; i++){
-            File[] files = new File("data/1/1000").listFiles();
+            File[] files = new File("data/3/100").listFiles();
             for (File f : files){
                 values.put(f.getName(), new ArrayList<Double>());
 
