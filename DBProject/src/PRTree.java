@@ -26,7 +26,6 @@ public class PRTree{
         findMBRSet(root);
         initStack.push(root);
 
-
         //main loop
         while (!initStack.empty()){
             //line 6
@@ -35,6 +34,7 @@ public class PRTree{
             //lines 7 - 8
             if (currentPR.objectList.size() <= M){
                 //printPR(currentPR, false);
+
             }
             else{
                 //line 10
@@ -59,51 +59,81 @@ public class PRTree{
     }
 
     //Algorithm 2: kNN Query
-    public void singlePrefixQuery(String query, Coordinates point, int k, PrefixRegion node){
+    public void kNNQuery(String query, Coordinates point, int k, PrefixRegion node){
         //lines 1 - 2
-        ArrayList<Record> resultList = new ArrayList<Record>();
+        PriorityQueue<Record> resultList =
+                new PriorityQueue<Record>(10, recordComparator);
         PrefixRegion currentNode = new PrefixRegion();
         prQ.add(node);
 
         while ((resultList.size() < k) && (!prQ.isEmpty())){
-            //System.out.println("SIZE OF RECQ: " + recQ.size() + " SIZE OF PRQ: " + prQ.size());
             //lines 5 - 6
             if (!recQ.isEmpty()){
-                if ((!prQ.isEmpty()) && (recQ.peek().getDist() < prQ.peek().getDist())){
-                    resultList.add(recQ.remove());
-                    continue;
+                //System.out.println("TOP OF RECQ DISTANCE: " + recQ.peek().getDist() + "TOP OF PRQ DISTANCE: " + prQ.peek().distanceFromCurrentQuery);
+                if ((recQ.peek().getDist() <= prQ.peek().getDist())){
+                    boolean repeat = false;
+                    for (Record r: resultList){
+                        if (r.name.equals(recQ.peek().name)){
+                            recQ.remove();
+                            repeat = true;
+                            break;
+                            //System.out.println("LOL OK " + r.name + r.distanceFromCurrentQuery);
+                        }
+
+                    }
+                    if (!repeat){
+                        //System.out.println("****************ADDING " + recQ.peek().name + " TO RESULTS");
+                        resultList.add(recQ.remove());
+                        //continue;
+                    }
                 }
             }
             currentNode = prQ.remove();
+            findMBRSet(currentNode);
+            //System.out.println("JUST POPPED " + currentNode.stringPrefix + " AT DISTANCE" + currentNode.distanceFromCurrentQuery);
             //leaf node
             if (!currentNode.objectList.isEmpty()){
                 //lines 8 - 9
                 for (Record r : currentNode.objectList){
                     for (String recordName : r.name){
-                        if (recordName.contains(query)){
+                        if ((recordName.startsWith(query) && !query.startsWith(recordName)) || r.name.contains(query)){
                             r.updateDistance(point);
-                            //System.out.println("ADDING RECORD WITH NAME " + r.name);
-                            recQ.add(r.clone());
+                            //System.out.println("ADDING RECORD WITH NAME " + r.name + " distance " + r.getDist());
+                            recQ.add(r);
                         }
                     }
                 }
             }
             //interior node
             else{
+                //System.out.println("STARTING LOOP***********************************");
                 for (char c : currentNode.children.keySet()){
                     //lines 11 - 13
                     for (PrefixRegion pr : currentNode.children.get(c)){
-                        if (pr.stringPrefix.contains(query) || query.contains(pr.stringPrefix)){
+                        //System.out.println("CHECKING PR WITH PREFIX: " + pr.stringPrefix);
+                        if ((pr.stringPrefix.startsWith(query) || query.startsWith(pr.stringPrefix))){
                             pr.updateDistance(point);
+                            //System.out.println("ALSO IT WAS ADDED AND HAS DISTANCE " + pr.getDist());
                             prQ.add(pr);
                         }
                     }
                 }
+                //System.out.println("LOOP ENDED************************************");
             }
         }
-        for (Record r : resultList){
-            System.out.println(r.name);
+        for (Record r : recQ){
+            resultList.add(r);
         }
+        for (int i = 0; i < k; i++){
+            if (!resultList.isEmpty()){
+                Record r = resultList.remove();
+                //System.out.println(r.name);
+                //System.out.println(r.name + " at distance " + r.getDist());
+            }
+        }
+        recQ.clear();
+        resultList.clear();
+        prQ.clear();
     }
 
     public void textOnlySearch(String query, PrefixRegion node){
@@ -125,7 +155,7 @@ public class PRTree{
             for (Record r : pr.objectList){
                 for (String s : r.name){
                     if(s.contains(query)){
-                        System.out.println(r.name);
+                        System.out.println(r.name + " " + r.point.getLatitude() + " "+ r.point.getLongitude() );
                         continue;
                     }
                 }
@@ -146,37 +176,38 @@ public class PRTree{
         double rootXMin = 0;
         double rootYMax = 0;
         double rootYMin = 0;
-        boolean rootMBR = true;
+        boolean firstRound = true;
+        boolean done = false;
         for (Record r : pr.objectList){
-            if (rootMBR){
-                rootMBR = false;
+            if (pr.objectList.size() < 20){
+                //System.out.println("FOR CURRENT RECORD WITH NAME " + r.name + " , POINTS ARE " + r.point.getLatitude() + " AND " + r.point.getLongitude());
+            }
+            if (firstRound){
+                firstRound = false;
                 rootXMax = r.point.getLatitude();
                 rootXMin = r.point.getLatitude();
                 rootYMax = r.point.getLongitude();
                 rootYMin = r.point.getLongitude();
             }
-            else{
-                rootXMax = pr.xMin;
-                rootXMin = pr.xMax;
-                rootYMax = pr.yMax;
-                rootYMin = pr.yMin;
-            }
             if(r.point.getLatitude() > rootXMax){
                 rootXMax = r.point.getLatitude();
             }
-            else if(r.point.getLatitude() < rootXMin){
+            if(r.point.getLatitude() < rootXMin){
                 rootXMin = r.point.getLatitude();
             }
             if (r.point.getLongitude() > rootYMax){
                 rootYMax = r.point.getLongitude();
             }
-            else if(r.point.getLongitude() < rootYMin){
+            if(r.point.getLongitude() < rootYMin){
                 rootYMin = r.point.getLongitude();
             }
-            pr.xMax = rootXMax;
-            pr.xMin = rootXMin;
-            pr.yMax = rootYMax;
-            pr.yMin = rootYMin;
+        }
+        pr.xMax = rootXMax;
+        pr.xMin = rootXMin;
+        pr.yMax = rootYMax;
+        pr.yMin = rootYMin;
+        if (pr.objectList.size() < 20){
+            //System.out.println("OUT OF THOSE, MAX IS: X " + pr.xMax + " Y " + pr.yMax + " MIN IS: X" + pr.xMin + " Y " + pr.yMin);
         }
     }
 
@@ -193,8 +224,8 @@ public class PRTree{
 
             //partition by centroid
             for(Record r : Ct.get(c)){
-                if (r.point.getLatitude() >= centroid.getLatitude() &&
-                        r.point.getLongitude() <= centroid.getLongitude()){
+                if (r.point.getLatitude() > centroid.getLatitude() &&
+                        r.point.getLongitude() < centroid.getLongitude()){
                     //System.out.println("ASSIGNING TO LOWER RIGHT");
                     lowerRight.objectList.add(r.clone());
                     lowerRight.setCharPrefix(c);
@@ -203,8 +234,8 @@ public class PRTree{
                     }
                     lowerRight.offset = currentN.offset;
                 }
-                else if(r.point.getLatitude() <= centroid.getLatitude() &&
-                        r.point.getLongitude() <= centroid.getLongitude()){
+                else if(r.point.getLatitude() < centroid.getLatitude() &&
+                        r.point.getLongitude() < centroid.getLongitude()){
                     //System.out.println("ASSIGNING TO LOWER LEFT");
                     lowerLeft.objectList.add(r.clone());
                     lowerLeft.setCharPrefix(c);
@@ -213,8 +244,8 @@ public class PRTree{
                     }
                     lowerLeft.offset = currentN.offset;
                 }
-                else if(r.point.getLatitude() <= centroid.getLatitude() &&
-                        r.point.getLongitude() >= centroid.getLongitude()){
+                else if(r.point.getLatitude() < centroid.getLatitude() &&
+                        r.point.getLongitude() > centroid.getLongitude()){
                     //System.out.println("ASSIGNING TO UPPER LEFT");
                     upperLeft.objectList.add(r.clone());
                     upperLeft.setCharPrefix(c);
@@ -235,14 +266,22 @@ public class PRTree{
             }
             //assign children to current node
             currentN.children.put(c, new ArrayList<PrefixRegion>());
-            currentN.children.get(c).add(0, upperLeft);
-            findMBRSet(currentN.children.get(c).get(0));
-            currentN.children.get(c).add(1, lowerLeft);
-            findMBRSet(currentN.children.get(c).get(1));
-            currentN.children.get(c).add(2, lowerRight);
-            findMBRSet(currentN.children.get(c).get(2));
-            currentN.children.get(c).add(3, upperRight);
-            findMBRSet(currentN.children.get(c).get(3));
+            if (!upperLeft.objectList.isEmpty()){
+                findMBRSet(upperLeft);
+                currentN.children.get(c).add(upperLeft);
+            }
+            if (!lowerLeft.objectList.isEmpty()){
+                findMBRSet(lowerLeft);
+                currentN.children.get(c).add(lowerLeft);
+            }
+            if (!lowerRight.objectList.isEmpty()){
+                findMBRSet(lowerRight);
+                currentN.children.get(c).add(lowerRight);
+            }
+            if (!upperRight.objectList.isEmpty()){
+                findMBRSet(upperRight);
+                currentN.children.get(c).add(upperRight);
+            }
         }
         currentN.objectList.clear();
     }
@@ -268,41 +307,62 @@ public class PRTree{
         HashMap<Character, ArrayList<Record>> partitioned =
                 new HashMap<Character, ArrayList<Record>>();
         boolean repeatedPrefix = false;
+        char at;
 
         ArrayList<Record> recordList = new ArrayList<Record>();
         for (Record record : pr.objectList){
+            boolean camp = false;
+
             //System.out.println(record.name);
             //System.out.println("PR STRING: " + pr.stringPrefix);
+            ArrayList<Character> arl = new ArrayList<Character>();
+            if (record.name.contains("virginia") && record.name.contains("camp")){
+                camp = true;
+            }
+
             repeatedPrefix = false;
             for (String recordName : record.name){
                 //If root, first character of first string is current prefix
                 if (rootStep){
-                    if (recordName.length() > 1){
-                        record.setString(recordName.substring(0, pr.offset+1));
+                    if (!arl.contains(recordName.charAt(0))){
+                        arl.add(recordName.charAt(0));
+                        if (recordName.length() > 1){
+                            record.setString(recordName.substring(0, pr.offset+1));
+                            pr.stringPrefix = recordName.substring(0, pr.offset+1);
+                        }
+                        else{
+                            record.setString(recordName.substring(0, 0));
+                            pr.stringPrefix = recordName.substring(0, 0);
+                        }
+                        if (camp){
+                            //System.out.println("YEAH " + recordName.charAt(pr.offset));
+                        }
+                        if (partitioned.get(recordName.charAt(pr.offset)) == null){
+                            recordList = new ArrayList<Record>();
+                        }
+                        else{
+                            recordList = partitioned.get(recordName.charAt(pr.offset));
+                        }
+                        recordList.add(record.clone());
+                        partitioned.put(recordName.charAt(pr.offset), recordList);
                     }
-                    else{
-                        record.setString(recordName.substring(0, 0));
-                    }
-                    if (partitioned.get(recordName.charAt(pr.offset)) == null){
-                        recordList = new ArrayList<Record>();
-                    }
-                    else{
-                        recordList = partitioned.get(recordName.charAt(pr.offset));
-                    }
-                    recordList.add(record.clone());
-                    partitioned.put(recordName.charAt(pr.offset), recordList);
                 }
                 //otherwise, first character of word starting with prefix is current prefix
-                else if(recordName.charAt(0) == pr.stringPrefix.charAt(0)){
+                else if(recordName.startsWith(pr.stringPrefix)){
                     char use;
                     //words in list start with the same letter
-                    if(repeatedPrefix){
-                        continue;
-                    }
-                    repeatedPrefix = true;
+                    // if (!repeatedPrefix){
+                    //repeatedPrefix = true;
                     if (pr.offset == recordName.length()){
-                        use = recordName.charAt(recordName.length()-1);
+                        use = recordName.charAt(pr.offset-1);
+
+                        if (camp){
+                            //System.out.println("OH RECORDNAME " + recordName + " STRING PREFIX: " + pr.stringPrefix);
+                        }
+
+                        //if(!repeatedPrefix){
                         record.setString(recordName);
+                        //}
                         if (partitioned.get(use) == null){
                             recordList = new ArrayList<Record>();
                         }
@@ -313,11 +373,17 @@ public class PRTree{
                         partitioned.put(use, recordList);
                     }
                     else if(pr.offset > recordName.length()){
-                        break;
+
+                        //System.out.println("OFFSET IS GREATER FOR RECORD " + record.name + " " + pr.offset);
+                        continue;
                     }
                     else{
+                        if (camp){
+                            //System.out.println("OK RECORDNAME " + recordName + " STRING PREFIX: " + pr.stringPrefix);
+                        }
+                        //if(!repeatedPrefix){
                         record.setString(recordName.substring(0, pr.offset+1));
-
+                        //}
                         if (partitioned.get(recordName.charAt(pr.offset)) == null){
                             recordList = new ArrayList<Record>();
                         }
@@ -327,6 +393,7 @@ public class PRTree{
                         recordList.add(record.clone());
                         partitioned.put(recordName.charAt(pr.offset), recordList);
                     }
+                    // }
                 }
             }
         }

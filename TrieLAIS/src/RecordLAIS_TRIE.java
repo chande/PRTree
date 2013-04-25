@@ -1,7 +1,7 @@
 
 public class RecordLAIS_TRIE{
-    public String parseString = null;
-    public String recName = null;
+    public String parseString = new String();
+    public String recName = new String();
     public CoordinatesLAIS_TRIE point = new CoordinatesLAIS_TRIE(0, 0);
     public int offset = 0;
     public String currentPrefix = new String();

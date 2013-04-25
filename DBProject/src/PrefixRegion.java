@@ -6,9 +6,9 @@ public class PrefixRegion{
     public String stringPrefix = new String();
     public int offset = 0;
 
-    public double xMin = 0;
+    public double xMin = Double.MAX_VALUE;
     public double xMax = 0;
-    public double yMin = 0;
+    public double yMin = Double.MAX_VALUE;
     public double yMax = 0;
     public double distanceFromCurrentQuery = 0;
 
@@ -43,7 +43,7 @@ public class PrefixRegion{
     }
 
     public void updateOffset(){
-        offset +=1;
+        offset++;
     }
 
     //minD calculation
@@ -52,6 +52,9 @@ public class PrefixRegion{
         double queryY = queryCoords.getLongitude();
 
         distanceFromCurrentQuery = 0;
+        //        if ((queryX >= xMin) && (queryX <= xMax) && (queryY >= yMin) && (queryY <= yMax)){
+        //        }
+        //        else{
         if (xMin > queryX){
             distanceFromCurrentQuery += Math.pow((xMin - queryX), 2);
         }
@@ -64,9 +67,43 @@ public class PrefixRegion{
         else if(yMax < queryY){
             distanceFromCurrentQuery += Math.pow((queryY-yMax), 2);
         }
+        //        }
     }
 
     public double getDist(){
         return distanceFromCurrentQuery;
+    }
+
+    @Override
+    public PrefixRegion clone(){
+        PrefixRegion pr = new PrefixRegion();
+
+        pr.charPrefix = charPrefix;
+        pr.stringPrefix = new String(stringPrefix);
+        pr.offset = offset;
+
+        pr.xMin = xMin;
+        pr.xMax = xMax;
+        pr.yMin = yMin;
+        pr.yMax = yMax;
+        pr.distanceFromCurrentQuery = distanceFromCurrentQuery;
+
+        pr.children = new HashMap<Character, ArrayList<PrefixRegion>>();
+        for (char c: children.keySet()){
+            ArrayList<PrefixRegion> al = new ArrayList<PrefixRegion>();
+            for (PrefixRegion pR : children.get(c)){
+                al.add(pR.clone());
+            }
+            pr.children.put(c, al);
+        }
+        //upperLeft = <prefix, children[0]>
+        //lowerLeft = <prefix, children[1]>
+        //lowerRight = <prefix, children[2]>
+        //upperRight = <prefix, children[3]>
+        pr.objectList = new ArrayList<Record>();
+        for (Record r : objectList){
+            pr.objectList.add(r.clone());
+        }
+        return pr;
     }
 }

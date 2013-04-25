@@ -27,7 +27,6 @@ public class Record{
     }
 
     public void updateDistance(Coordinates queryCoords){
-        distanceFromCurrentQuery = 0;
         double queryX = queryCoords.getLatitude();
         double queryY = queryCoords.getLongitude();
         double term1 = Math.pow(point.getLatitude() - queryX, 2);

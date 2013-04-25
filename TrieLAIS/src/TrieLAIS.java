@@ -1,5 +1,6 @@
 import java.io.BufferedReader;
 import java.io.DataInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -20,10 +21,18 @@ import java.util.Set;
 public class TrieLAIS {
 
     private Map<Character, TrieLAIS> children;
-    private RecordLAIS_TRIE word = new RecordLAIS_TRIE();
+    public RecordLAIS_TRIE word = new RecordLAIS_TRIE();
     private Set<TrieLAIS> descendantsWithWord;
-    private ArrayList<RecordLAIS_TRIE> recList = new ArrayList<RecordLAIS_TRIE>();
+    public ArrayList<RecordLAIS_TRIE> recList = new ArrayList<RecordLAIS_TRIE>();
     private boolean isBuilt = false;
+
+    static Comparator<RecordLAIS_TRIE> recordComparator = new RecordComparatorLAIS_TRIE();
+    static PriorityQueue<RecordLAIS_TRIE> recQ = new PriorityQueue<RecordLAIS_TRIE>(10, recordComparator);
+    static ArrayList<RecordLAIS_TRIE> recordList = new ArrayList<RecordLAIS_TRIE>();
+
+    //search variables
+    static CoordinatesLAIS_TRIE point = new CoordinatesLAIS_TRIE(-74.378,40.799);
+    static int k = 15;
 
 
     public TrieLAIS() {
@@ -43,14 +52,20 @@ public class TrieLAIS {
             }
             t = t.children.get(c);
         }
-        try{
-            if (t.word.parseString.equals(word.parseString)){
-                t.recList.add(word);
-            }
-        }
-        catch (Exception e){
+        //        try{
+        if (t.word.parseString.equals(word.parseString)){
+            t.recList.add(word);
+            //System.out.println("T RECLIST SIZE FOR WORD: " + word.parseString + " " + t.recList.size() + "****************");
+        }else{
+            //            }
+            //            else{
+            //                t.word = word;
+            //            }
+            //        }
+            //   catch (Exception e){
             t.word = word;
         }
+        //     }
     }
 
     public Set<TrieLAIS> search(final String word) {
@@ -82,6 +97,29 @@ public class TrieLAIS {
         return this.descendantsWithWord;
     }
 
+    public static void printList(Set <TrieLAIS> l){
+        for (TrieLAIS tr : l) {
+            tr.word.updateDistance(point);
+            recordList.add(tr.word);
+            if (tr.recList.size() > 0){
+                for (RecordLAIS_TRIE r : tr.recList){
+                    r.updateDistance(point);
+                    recordList.add(r);
+                }
+            }
+        }
+        for (RecordLAIS_TRIE r : recordList){
+            recQ.add(r);
+        }
+        for(int i = 0; i < k; i++){
+            if (recQ.peek() != null){
+                RecordLAIS_TRIE output = recQ.remove();
+                System.out.println(output.recName + " with distance " + output.getDist());
+                //System.out.println(output.recName );
+            }
+        }
+    }
+
     public static void main(String[] args) throws IOException, IllegalAccessException {
         TrieLAIS t = new TrieLAIS();
 
@@ -110,35 +148,54 @@ public class TrieLAIS {
         }
         //Close the input stream
         in.close();
-
         t.build();
 
-        CoordinatesLAIS_TRIE point = new CoordinatesLAIS_TRIE(-74.378,40.799);
-        Comparator<RecordLAIS_TRIE> recordComparator = new RecordComparatorLAIS_TRIE();
-        PriorityQueue<RecordLAIS_TRIE> recQ = new PriorityQueue<RecordLAIS_TRIE>(10, recordComparator);
 
-        ArrayList<RecordLAIS_TRIE> recordList = new ArrayList<RecordLAIS_TRIE>();
-        int k = 4;
+        HashMap<String, ArrayList<Double>> values = new HashMap<String, ArrayList<Double>>();
+        for (int i = 0; i <= 4; i++){
+            File[] files = new File("data/3/500").listFiles();
+            for (File f : files){
+                values.put(f.getName(), new ArrayList<Double>());
 
-        Set<TrieLAIS> l = t.search("hurt");
-        System.out.println("Results");
-        for (TrieLAIS tr : l) {
-            //            System.out.println(tr.word.recName);
-            tr.word.updateDistance(point);
-            recordList.add(tr.word);
-            if (tr.recList.size() > 0){
-                for (RecordLAIS_TRIE r : tr.recList){
-                    r.updateDistance(point);
-                    recordList.add(r);
-                    //                            System.out.println(r.recName);
+                FileInputStream fstream1 = new FileInputStream(f.getAbsolutePath());
+                // Get the object of DataInputStream
+                DataInputStream in1 = new DataInputStream(fstream1);
+                BufferedReader br1 = new BufferedReader(new InputStreamReader(in1));
+                String strLine1;
+                //Read File Line By Line
+                long startTime = System.nanoTime();
+                while ((strLine1 = br1.readLine()) != null){
+                    if (strLine1.length() > 0){
+                        String[] line = strLine1.split(",");
+                        String prfx = line[0];
+                        Double lat = Double.parseDouble(line[1]);
+                        Double lon = Double.parseDouble(line[2]);
+                        point = new CoordinatesLAIS_TRIE(lat, lon);
+                        k = Integer.parseInt(line[3]);
+                        Set<TrieLAIS> l = t.search(prfx);
+                    }
                 }
+                long endTime = System.nanoTime();
+                values.get(f.getName()).add((endTime - startTime) / 1000000000.0);
             }
+
         }
-        for (RecordLAIS_TRIE r : recordList){
-            recQ.add(r);
+        Double total = 0.0;
+        for (String str : values.keySet()){
+            total = 0.0;
+            for (Double al : values.get(str)){
+                total += al;
+            }
+            System.out.println(str + " took an average "+ total/5 + " s");
         }
-        for(int i = 0; i < k; i++){
-            System.out.println(recQ.remove().recName);
-        }
+        //        Set<TrieLAIS> l = t.search("par");
+        //        printList(l);
+        //        point = new CoordinatesLAIS_TRIE(-77.379,48.798);
+        //        System.out.println("***********************");
+        //        l = t.search("sch");
+        //        printList(l);
     }
 }
+
+
+
