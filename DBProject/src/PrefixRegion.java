@@ -50,11 +50,8 @@ public class PrefixRegion{
     public void updateDistance(Coordinates queryCoords){
         double queryX = queryCoords.getLatitude();
         double queryY = queryCoords.getLongitude();
-
         distanceFromCurrentQuery = 0;
-        //        if ((queryX >= xMin) && (queryX <= xMax) && (queryY >= yMin) && (queryY <= yMax)){
-        //        }
-        //        else{
+
         if (xMin > queryX){
             distanceFromCurrentQuery += Math.pow((xMin - queryX), 2);
         }
@@ -67,7 +64,6 @@ public class PrefixRegion{
         else if(yMax < queryY){
             distanceFromCurrentQuery += Math.pow((queryY-yMax), 2);
         }
-        //        }
     }
 
     public double getDist(){

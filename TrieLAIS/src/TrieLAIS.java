@@ -55,17 +55,9 @@ public class TrieLAIS {
         //        try{
         if (t.word.parseString.equals(word.parseString)){
             t.recList.add(word);
-            //System.out.println("T RECLIST SIZE FOR WORD: " + word.parseString + " " + t.recList.size() + "****************");
         }else{
-            //            }
-            //            else{
-            //                t.word = word;
-            //            }
-            //        }
-            //   catch (Exception e){
             t.word = word;
         }
-        //     }
     }
 
     public Set<TrieLAIS> search(final String word) {
@@ -115,7 +107,6 @@ public class TrieLAIS {
             if (recQ.peek() != null){
                 RecordLAIS_TRIE output = recQ.remove();
                 System.out.println(output.recName + " with distance " + output.getDist());
-                //System.out.println(output.recName );
             }
         }
     }
@@ -141,7 +132,6 @@ public class TrieLAIS {
                 RecordLAIS_TRIE r  = new RecordLAIS_TRIE();
                 r.parseString = s.toLowerCase();
                 r.recName = line[2].replace("\"","").toLowerCase();
-                //System.out.println("PARSESTRING: " + r.parseString + " RECORD NAME: " + r.recName);
                 r.point.setLatitudeLongitude(Double.parseDouble(line[0]), Double.parseDouble(line[1]));
                 t.add(r);
             }

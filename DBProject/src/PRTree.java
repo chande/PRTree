@@ -69,7 +69,6 @@ public class PRTree{
         while ((resultList.size() < k) && (!prQ.isEmpty())){
             //lines 5 - 6
             if (!recQ.isEmpty()){
-                //System.out.println("TOP OF RECQ DISTANCE: " + recQ.peek().getDist() + "TOP OF PRQ DISTANCE: " + prQ.peek().distanceFromCurrentQuery);
                 if ((recQ.peek().getDist() <= prQ.peek().getDist())){
                     boolean repeat = false;
                     for (Record r: resultList){
@@ -77,12 +76,10 @@ public class PRTree{
                             recQ.remove();
                             repeat = true;
                             break;
-                            //System.out.println("LOL OK " + r.name + r.distanceFromCurrentQuery);
                         }
 
                     }
                     if (!repeat){
-                        //System.out.println("****************ADDING " + recQ.peek().name + " TO RESULTS");
                         resultList.add(recQ.remove());
                         //continue;
                     }
@@ -90,7 +87,6 @@ public class PRTree{
             }
             currentNode = prQ.remove();
             findMBRSet(currentNode);
-            //System.out.println("JUST POPPED " + currentNode.stringPrefix + " AT DISTANCE" + currentNode.distanceFromCurrentQuery);
             //leaf node
             if (!currentNode.objectList.isEmpty()){
                 //lines 8 - 9
@@ -98,7 +94,6 @@ public class PRTree{
                     for (String recordName : r.name){
                         if ((recordName.startsWith(query) && !query.startsWith(recordName)) || r.name.contains(query)){
                             r.updateDistance(point);
-                            //System.out.println("ADDING RECORD WITH NAME " + r.name + " distance " + r.getDist());
                             recQ.add(r);
                         }
                     }
@@ -106,19 +101,15 @@ public class PRTree{
             }
             //interior node
             else{
-                //System.out.println("STARTING LOOP***********************************");
                 for (char c : currentNode.children.keySet()){
                     //lines 11 - 13
                     for (PrefixRegion pr : currentNode.children.get(c)){
-                        //System.out.println("CHECKING PR WITH PREFIX: " + pr.stringPrefix);
                         if ((pr.stringPrefix.startsWith(query) || query.startsWith(pr.stringPrefix))){
                             pr.updateDistance(point);
-                            //System.out.println("ALSO IT WAS ADDED AND HAS DISTANCE " + pr.getDist());
                             prQ.add(pr);
                         }
                     }
                 }
-                //System.out.println("LOOP ENDED************************************");
             }
         }
         for (Record r : recQ){
@@ -127,8 +118,6 @@ public class PRTree{
         for (int i = 0; i < k; i++){
             if (!resultList.isEmpty()){
                 Record r = resultList.remove();
-                //System.out.println(r.name);
-                //System.out.println(r.name + " at distance " + r.getDist());
             }
         }
         recQ.clear();
@@ -179,9 +168,6 @@ public class PRTree{
         boolean firstRound = true;
         boolean done = false;
         for (Record r : pr.objectList){
-            if (pr.objectList.size() < 20){
-                //System.out.println("FOR CURRENT RECORD WITH NAME " + r.name + " , POINTS ARE " + r.point.getLatitude() + " AND " + r.point.getLongitude());
-            }
             if (firstRound){
                 firstRound = false;
                 rootXMax = r.point.getLatitude();
@@ -206,9 +192,6 @@ public class PRTree{
         pr.xMin = rootXMin;
         pr.yMax = rootYMax;
         pr.yMin = rootYMin;
-        if (pr.objectList.size() < 20){
-            //System.out.println("OUT OF THOSE, MAX IS: X " + pr.xMax + " Y " + pr.yMax + " MIN IS: X" + pr.xMin + " Y " + pr.yMin);
-        }
     }
 
     // check location of each record against centroid, assign to region, assign set to parent
@@ -226,7 +209,6 @@ public class PRTree{
             for(Record r : Ct.get(c)){
                 if (r.point.getLatitude() > centroid.getLatitude() &&
                         r.point.getLongitude() < centroid.getLongitude()){
-                    //System.out.println("ASSIGNING TO LOWER RIGHT");
                     lowerRight.objectList.add(r.clone());
                     lowerRight.setCharPrefix(c);
                     if (lowerRight.stringPrefix.isEmpty()){
@@ -236,7 +218,6 @@ public class PRTree{
                 }
                 else if(r.point.getLatitude() < centroid.getLatitude() &&
                         r.point.getLongitude() < centroid.getLongitude()){
-                    //System.out.println("ASSIGNING TO LOWER LEFT");
                     lowerLeft.objectList.add(r.clone());
                     lowerLeft.setCharPrefix(c);
                     if (lowerLeft.stringPrefix.isEmpty()){
@@ -246,7 +227,6 @@ public class PRTree{
                 }
                 else if(r.point.getLatitude() < centroid.getLatitude() &&
                         r.point.getLongitude() > centroid.getLongitude()){
-                    //System.out.println("ASSIGNING TO UPPER LEFT");
                     upperLeft.objectList.add(r.clone());
                     upperLeft.setCharPrefix(c);
                     if (upperLeft.stringPrefix.isEmpty()){
@@ -255,7 +235,6 @@ public class PRTree{
                     upperLeft.offset = currentN.offset;
                 }
                 else{
-                    //System.out.println("ASSIGNING TO UPPER RIGHT");
                     upperRight.objectList.add(r.clone());
                     upperRight.setCharPrefix(c);
                     if (upperRight.stringPrefix.isEmpty()){
@@ -311,14 +290,7 @@ public class PRTree{
 
         ArrayList<Record> recordList = new ArrayList<Record>();
         for (Record record : pr.objectList){
-            boolean camp = false;
-
-            //System.out.println(record.name);
-            //System.out.println("PR STRING: " + pr.stringPrefix);
             ArrayList<Character> arl = new ArrayList<Character>();
-            if (record.name.contains("virginia") && record.name.contains("camp")){
-                camp = true;
-            }
 
             repeatedPrefix = false;
             for (String recordName : record.name){
@@ -334,9 +306,6 @@ public class PRTree{
                             record.setString(recordName.substring(0, 0));
                             pr.stringPrefix = recordName.substring(0, 0);
                         }
-                        if (camp){
-                            //System.out.println("YEAH " + recordName.charAt(pr.offset));
-                        }
                         if (partitioned.get(recordName.charAt(pr.offset)) == null){
                             recordList = new ArrayList<Record>();
                         }
@@ -351,49 +320,36 @@ public class PRTree{
                 else if(recordName.startsWith(pr.stringPrefix)){
                     char use;
                     //words in list start with the same letter
-                    // if (!repeatedPrefix){
-                    //repeatedPrefix = true;
                     if (pr.offset == recordName.length()){
                         use = recordName.charAt(pr.offset-1);
-
-                        if (camp){
-                            //System.out.println("OH RECORDNAME " + recordName + " STRING PREFIX: " + pr.stringPrefix);
-                        }
-
-                        //if(!repeatedPrefix){
                         record.setString(recordName);
-                        //}
+
                         if (partitioned.get(use) == null){
                             recordList = new ArrayList<Record>();
                         }
                         else{
                             recordList = partitioned.get(use);
                         }
+
                         recordList.add(record.clone());
                         partitioned.put(use, recordList);
                     }
                     else if(pr.offset > recordName.length()){
-
-                        //System.out.println("OFFSET IS GREATER FOR RECORD " + record.name + " " + pr.offset);
                         continue;
                     }
                     else{
-                        if (camp){
-                            //System.out.println("OK RECORDNAME " + recordName + " STRING PREFIX: " + pr.stringPrefix);
-                        }
-                        //if(!repeatedPrefix){
                         record.setString(recordName.substring(0, pr.offset+1));
-                        //}
+
                         if (partitioned.get(recordName.charAt(pr.offset)) == null){
                             recordList = new ArrayList<Record>();
                         }
                         else{
                             recordList = partitioned.get(recordName.charAt(pr.offset));
                         }
+
                         recordList.add(record.clone());
                         partitioned.put(recordName.charAt(pr.offset), recordList);
                     }
-                    // }
                 }
             }
         }
