@@ -16,7 +16,7 @@ public class Main {
         int M;
 
         if (args.length != 2){
-            inputFile = "src/sanitized.txt";
+            inputFile = "data/sanitized.txt";
             M = 10;
         }
         else{
