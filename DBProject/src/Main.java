@@ -42,12 +42,6 @@ public class Main {
     public static void main(String[] args) throws IOException{
         int M = getRecords(args);
         PRTree prt = new PRTree(records, M);
-        //        prt.textOnlySearch("virgin", prt.root);
-        //        Coordinates point = new Coordinates(-74.378,40.799);
-        //        //prt.singlePrefixQuery("par", point, 15, prt.root);
-        //        System.out.println("***********************");
-        //        point = new Coordinates(-77.379,48.798);
-        //        prt.singlePrefixQuery("sch", point, 15, prt.root);
 
         HashMap<String, ArrayList<Double>> values = new HashMap<String, ArrayList<Double>>();
         for (int i = 0; i <= 4; i++){

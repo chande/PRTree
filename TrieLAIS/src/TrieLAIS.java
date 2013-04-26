@@ -178,12 +178,6 @@ public class TrieLAIS {
             }
             System.out.println(str + " took an average "+ total/5 + " s");
         }
-        //        Set<TrieLAIS> l = t.search("par");
-        //        printList(l);
-        //        point = new CoordinatesLAIS_TRIE(-77.379,48.798);
-        //        System.out.println("***********************");
-        //        l = t.search("sch");
-        //        printList(l);
     }
 }
 
