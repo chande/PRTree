@@ -140,7 +140,7 @@ public class TrieLAIS {
         in.close();
         t.build();
 
-
+        //begin benchmarking
         HashMap<String, ArrayList<Double>> values = new HashMap<String, ArrayList<Double>>();
         for (int i = 0; i <= 4; i++){
             File[] files = new File("data/3/500").listFiles();
