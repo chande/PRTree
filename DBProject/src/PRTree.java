@@ -17,7 +17,7 @@ public class PRTree{
     PriorityQueue<Record> recQ =
             new PriorityQueue<Record>(10, recordComparator);
 
-    // Algorithm 1: ConstructTree(ObjectSet, Parampeter)
+    // Algorithm 1: ConstructTree(ObjectSet, Parameter)
     public PRTree(ArrayList<Record> recordSet, int M){
 
         //lines 2 - 4
