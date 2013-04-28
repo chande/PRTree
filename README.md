@@ -16,7 +16,7 @@ This directory contains the PR-Tree implementation, in PRTRee.java. The construc
 
 <strong>data/</strong>
 
-This directory contains the query benchmarking input (numbered directories) and experimental results (data.txt), as well as the input database (sanitized.txt). The original paper is also included here. The naming convention for the benchmarking files is: number_of_queries.prefix_length.number_of_results
+This directory contains the query benchmarking input (numbered directories) and experimental results (data.txt), as well as the input database (sanitized.txt). The original paper is also included here. The directory structure for the benchmarking files is: prefix_length/number_of_queries/number_of_results[a-c]. There are three files for each case to make up for the large number of prefixes which will return zero results. For example, the prefixes "xxz" or "trn" will not match any strings in the database, resultsing in skewed benchmarking values.
 
 TrieLAIS/
 =========
